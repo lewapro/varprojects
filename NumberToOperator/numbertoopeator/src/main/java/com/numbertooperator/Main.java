@@ -3,6 +3,7 @@ package com.numbertooperator;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -12,59 +13,116 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class Main {
     public static void main(String[] args) {
-        String input = "79001212942";
-        String filePath = null;
-        // сканнер читающий текст
-        if(input.length()==11){
-        if(Integer.parseInt(input.substring(1, 4))>=900){
-            filePath = "numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\DEF-9xx.xlsx";
-        } else if(Integer.parseInt(input.substring(1, 4))>=800){
-            filePath = "numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\DEF-8xx.xlsx";
-        } else if(Integer.parseInt(input.substring(1, 4))>=400){
-            filePath = "numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\DEF-4xx.xlsx";
-        } else if(Integer.parseInt(input.substring(1, 4))>=300){
-            filePath = "numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\DEF-3xx.xlsx";
-        }
-                try{
-                XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(filePath));
-                Map<Double, String> range = new HashMap<>();
-                XSSFSheet sheet = workbook.getSheetAt(0);
-                Row ABCDEFRow = sheet.getRow(1);
-                Cell ABCDEFCell = ABCDEFRow.getCell(0);
-                Row limitRow = sheet.getRow(1);
-                Cell limitCell = limitRow.getCell(2);
-                Row operatorRow = sheet.getRow(1);
-                Cell operatorCell = operatorRow.getCell(4);
-                label:
-                for(int i = 0; i<15730;i++){
-                    limitRow = sheet.getRow(i+1);
-                    if(limitRow != null){
-                        ABCDEFRow = sheet.getRow(i+1);
-                        operatorRow = sheet.getRow(i+1);
-                        limitCell = limitRow.getCell(2);
-                        operatorCell = operatorRow.getCell(4);
-                        ABCDEFCell = ABCDEFRow.getCell(0);
-                        if(ABCDEFCell.getNumericCellValue() == (Double.parseDouble(input.substring(1, 4)))){
-                            range.put(limitCell.getNumericCellValue(), operatorCell.getStringCellValue());
-                            if(range.keySet().stream().sorted().filter(x->Integer.parseInt(input.substring(4, 11))<=x).limit(1).collect(Collectors.toList()).size()==1){
-                                System.out.println(range.keySet().stream().sorted().filter(x->Integer.parseInt(input.substring(4, 11))<=x).limit(1).map(x->range.get(x)).collect(Collectors.toList()));
-                                break label;
-                            }   // Завершает цикл при нахождении первого нужного оператора. Удобно если проверка используется один раз, при каждой новой input будет проходить через цикл снова.
-                        
-                      }
-                    }   
-                }
-             
-
-
-
-                
-                } catch (Exception e) {
-                    System.out.println(e);
+       // String input = "79001212942";
+        boolean d9x = false;
+        boolean d8x = false;
+        boolean d4x = false;
+        boolean d3x = false;
+        Map<Double, String> range = new HashMap<>();
+        Scanner sc = new Scanner(System.in);
+        while(true){
+            System.out.println("Введите номер телефона в формате 79005551122. Для выхода ввести 'q'");
+            String input = sc.nextLine();
+            if(input.toUpperCase().equals("Q")){
+            //  sc.close(); не думаю, что в этом есть смысл.
+                break;
             }
-                
+            label:
+            if(input.length()==11 && !input.matches(".*\\D.*")){
+                if(Integer.parseInt(input.substring(1, 4))>=900){
+                    if(d9x == false){
+                    d9x = true;
+                    readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\DEF-9xx.xlsx", range);
+                    findOperator(range, input);
+                    }
+                    else 
+                    findOperator(range, input);
+                    break label;
+                }
+                if(Integer.parseInt(input.substring(1, 4))>=800){
+                    if(d8x == false){
+                    d8x = true;
+                    readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\ABC-8xx.xlsx", range);
+                    findOperator(range, input);
+                    }
+                    else 
+                    findOperator(range, input);
+                    break label;
+                }
+                if(Integer.parseInt(input.substring(1, 4))>=400){
+                    if(d4x == false){
+                    d4x = true;
+                    readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\ABC-4xx.xlsx", range);
+                    findOperator(range, input);
+                    }
+                    else 
+                    findOperator(range, input);
+                    break label;
+                }
+                if(Integer.parseInt(input.substring(1, 4))>=300){
+                    if(d3x == false){
+                    d3x = true;
+                    readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\ABC-3xx.xlsx", range);
+                    findOperator(range, input);
+                    }
+                    else 
+                    findOperator(range, input);
+                    break label;
+                }
+            }  
         }
-       
-
+    } 
+    public static void readNumbers(String filePath, Map<Double,String> range){
+        try{
+            XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(filePath));
+            XSSFSheet sheet = workbook.getSheetAt(0);
+            Row ABCDEFRow = sheet.getRow(1);
+            Cell ABCDEFCell = ABCDEFRow.getCell(0);
+            Row limitRow = sheet.getRow(1);
+            Cell limitCell = limitRow.getCell(2);
+            Row operatorRow = sheet.getRow(1);
+            Cell operatorCell = operatorRow.getCell(4);
+            for(int i = 0; i<300000;i++){
+                limitRow = sheet.getRow(i+1);
+                if(limitRow == null){
+                    break;
+                }
+                else{
+                    ABCDEFRow = sheet.getRow(i+1);
+                    operatorRow = sheet.getRow(i+1);
+                    limitCell = limitRow.getCell(2);
+                    operatorCell = operatorRow.getCell(4);
+                    ABCDEFCell = ABCDEFRow.getCell(0);
+                    range.put(Double.parseDouble((int)limitCell.getNumericCellValue() + "." + (int)ABCDEFCell.getNumericCellValue() + "" + 1), operatorCell.getStringCellValue());
+                    // Так как ключ должен быть уникальным, к нему добавляется код ABC/DEF в виде данных после запятой. 1 добавляется, так как при .900 число сокращается до .9
+                }      
+            }
+            } catch (Exception e) {
+                System.out.println(e);
+            }
     }
+
+    public static void findOperator(Map<Double, String> range, String input) {
+        String result = (range
+                .keySet()
+                .stream()
+                .sorted()
+                .filter(x->Integer.parseInt(input.substring(4, 11))<=x && x.toString().substring(x.toString().length()-4, x.toString().length()-1).equals(input.substring(1, 4)))
+                .limit(1).map(x->range.get(x)).collect(Collectors.joining()));
+                // Чуть выше через комбинацию одинаковых действий вызволяется код ABC/DEF и сравнивается с input.
+        if(!result.isBlank()){
+            System.out.println(result);;
+        }
+        else System.out.println(result + "Данные не найдены!");
+    } 
+    // Без использования лишней переменной
+    /*    public static String findOperator(Map<Double, String> range, String input) {
+        return (range
+                .keySet()
+                .stream()
+                .sorted()
+                .filter(x->Integer.parseInt(input.substring(4, 11))<=x && x.toString().substring(x.toString().length()-4, x.toString().length()-1).equals(input.substring(1, 4)))
+                .limit(1).map(x->range.get(x)).collect(Collectors.joining()));
+    } 
+    */
 }
