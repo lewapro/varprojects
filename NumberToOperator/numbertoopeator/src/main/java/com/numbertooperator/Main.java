@@ -13,12 +13,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class Main {
     public static void main(String[] args) {
-       // String input = "79001212942";
-        boolean d9x = false;
-        boolean d8x = false;
-        boolean d4x = false;
-        boolean d3x = false;
         Map<Double, String> range = new HashMap<>();
+        readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\DEF-9xx.xlsx", range);
+        readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\ABC-8xx.xlsx", range);
+        readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\ABC-4xx.xlsx", range);
+        readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\ABC-3xx.xlsx", range);
         Scanner sc = new Scanner(System.in);
         while(true){
             System.out.println("Введите номер телефона в формате 79005551122. Для выхода ввести 'q'");
@@ -29,47 +28,9 @@ public class Main {
             }
             label:
             if(input.length()==11 && !input.matches(".*\\D.*")){
-                if(Integer.parseInt(input.substring(1, 4))>=900){
-                    if(d9x == false){
-                    d9x = true;
-                    readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\DEF-9xx.xlsx", range);
-                    findOperator(range, input);
-                    }
-                    else 
-                    findOperator(range, input);
-                    break label;
-                }
-                if(Integer.parseInt(input.substring(1, 4))>=800){
-                    if(d8x == false){
-                    d8x = true;
-                    readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\ABC-8xx.xlsx", range);
-                    findOperator(range, input);
-                    }
-                    else 
-                    findOperator(range, input);
-                    break label;
-                }
-                if(Integer.parseInt(input.substring(1, 4))>=400){
-                    if(d4x == false){
-                    d4x = true;
-                    readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\ABC-4xx.xlsx", range);
-                    findOperator(range, input);
-                    }
-                    else 
-                    findOperator(range, input);
-                    break label;
-                }
-                if(Integer.parseInt(input.substring(1, 4))>=300){
-                    if(d3x == false){
-                    d3x = true;
-                    readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\ABC-3xx.xlsx", range);
-                    findOperator(range, input);
-                    }
-                    else 
-                    findOperator(range, input);
-                    break label;
-                }
-            }  
+                findOperator(range, input);
+                break label;
+            }
         }
     } 
     public static void readNumbers(String filePath, Map<Double,String> range){
@@ -96,6 +57,7 @@ public class Main {
                     range.put(Double.parseDouble((int)limitCell.getNumericCellValue() + "." + (int)ABCDEFCell.getNumericCellValue() + "" + 1), operatorCell.getStringCellValue());
                     // Так как ключ должен быть уникальным, к нему добавляется код ABC/DEF в виде данных после запятой. 1 добавляется, так как при .900 число сокращается до .9
                 }      
+            //    workbook.close(); также не влияет на скорость
             }
             } catch (Exception e) {
                 System.out.println(e);
