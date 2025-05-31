@@ -13,11 +13,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class Main {
     public static void main(String[] args) {
-        Map<Double, String> range = new TreeMap<>();
-        readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\DEF-9xx.xlsx", range);
-        readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\ABC-8xx.xlsx", range);
-        readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\ABC-4xx.xlsx", range);
-        readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\ABC-3xx.xlsx", range);
+        TreeMap<String, Double> range = new TreeMap<>();
+        readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\DEF-9xx.xlsx", range, 'a');
+        readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\ABC-8xx.xlsx", range, 'b');
+        readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\ABC-4xx.xlsx", range, 'c');
+        readNumbers("numbertoopeator\\\\src\\\\main\\\\java\\\\com\\\\numbertooperator\\\\ABC-3xx.xlsx", range, 'd');
         Scanner sc = new Scanner(System.in);
         while(true){
             System.out.println("Введите номер телефона в формате 79005551122. Для выхода ввести 'q'");
@@ -28,12 +28,15 @@ public class Main {
             String ABCDEF = input.substring(1, 4);
             label:
             if(input.length()==11 && !input.matches(".*\\D.*")){
+                        long timerStart2;
+        timerStart2 = System.nanoTime();
                     findOperator(range, input, ABCDEF);
+                    System.out.println("Time: " + (System.nanoTime()-timerStart2));
                     break label;
             }
         }
     } 
-    public static void readNumbers(String filePath, Map<Double,String> range){
+    public static void readNumbers(String filePath, Map<String, Double> range, char counter){
         try{
             XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(filePath));
             XSSFSheet sheet = workbook.getSheetAt(0);
@@ -55,27 +58,24 @@ public class Main {
                     operatorCell = operatorRow.getCell(4);
                     ABCDEFCell = ABCDEFRow.getCell(0);
                     if(((int)limitCell.getNumericCellValue() + "").length() == 7){ // В базе есть номера, которые не могут существовать?
-                        range.put(Double.parseDouble((int)limitCell.getNumericCellValue() + "." + (int)ABCDEFCell.getNumericCellValue() + "" + 1), operatorCell.getStringCellValue());
+                        range.put(ABCDEFCell.getAddress() +  "Š" + counter + operatorCell.getStringCellValue() + "…" + (int)ABCDEFCell.getNumericCellValue(), limitCell.getNumericCellValue());
                     }
-                    // Так как ключ должен быть уникальным, к нему добавляется код ABC/DEF в виде данных после запятой. 1 добавляется, так как при .900 число сокращается до .9
-                }      
-            }
-            } catch (Exception e) {
-                System.out.println(e);
-            }
-    }
+                }   
+            } 
+        } catch (Exception e) {
+            } 
+    }   
 
-    public static void findOperator(Map<Double, String> range, String input, String ABCDEF) {
-        
-        int numberShortened = Integer.parseInt(input.substring(4, 11));
+    public static void findOperator(TreeMap<String, Double> range, String input, String ABCDEF) {
+        Double numberShortened = Double.parseDouble(input.substring(4, 11));
         String result = (range
                 .keySet()
                 .stream()
-                .filter(x->numberShortened<=x && x.toString().substring(x.toString().length()-4, x.toString().length()-1).equals(ABCDEF))
-                .limit(1).map(x->range.get(x)).collect(Collectors.joining()));
+                .filter(x->x.substring(x.length()-3).equals(ABCDEF) && numberShortened<=range.get(x))
+                .limit(1).map(x->x.substring(x.indexOf("Š")+2,x.indexOf("…"))).collect(Collectors.joining()));
         if(!result.isBlank()){
             System.out.println(result);
         }
         else System.out.println(result + "Данные не найдены!");
     } 
-}
+} 
