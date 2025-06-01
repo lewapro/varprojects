@@ -1,6 +1,7 @@
 package com.numbertooperator;
 
 import java.io.FileInputStream;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 import org.apache.poi.ss.usermodel.Cell;
@@ -61,8 +62,9 @@ public class Main {
 
     public static void findOperator(TreeMap<Long, String> range, String input) {
         Long numberShortened = Long.parseLong(input.substring(1));
-        if(range.floorEntry(numberShortened) != null){
-            System.out.println(range.floorEntry(numberShortened).getValue());
+        Map.Entry<Long, String> floorResult = range.floorEntry(numberShortened);
+        if(floorResult != null){
+            System.out.println(floorResult.getValue());
         }
         else
         System.out.println("Данные не найдены!");
